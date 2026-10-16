@@ -1,107 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jesse AI — CRSMCPAI Alpha Sovereign Intelligence</title>
-    <meta name="description" content="Official public portal of Jesse AI, the internal sovereign language model of CRSMCPAI Alpha under Superadmin SLMK Jesse Martinez Junior.">
+    <title>Jesse AI — Sovereign Intelligence</title>
+    <meta name="description" content="Talk to Jesse AI. Voice-first sovereign intelligence by SLMK Jesse Martinez Junior.">
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
+<body>
 
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-amber-400 focus:text-slate-950 focus:font-bold">
-        Skip to main content
-    </a>
+    <a href="#chat" class="skip-link">Skip to chat</a>
 
-    <!-- Sovereign Header / Telemetry Banner -->
-    <header role="banner" class="border-b border-amber-500/20 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <span class="inline-block w-3 h-3 rounded-full bg-amber-500 animate-pulse" aria-hidden="true"></span>
-                <span class="font-mono font-bold tracking-wider text-amber-400 text-sm md:text-base">CRSMCPAI ALPHA // JESSE AI</span>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span class="brand-name">JESSE AI</span>
             </div>
-            <nav aria-label="Main Navigation" class="hidden md:flex items-center space-x-6 text-sm font-mono text-slate-400">
-                <a href="#telemetry" class="hover:text-amber-400 transition-colors">Telemetry</a>
-                <a href="#terminal" class="hover:text-amber-400 transition-colors">Sovereign CLI</a>
-                <a href="#tnc" class="hover:text-amber-400 transition-colors">Dominion TNC</a>
-            </nav>
-            <div class="text-xs font-mono text-amber-500/80 border border-amber-500/30 px-3 py-1 rounded">
-                STATUS: ACTIVE
-            </div>
+            <div class="status-pill">LIVE</div>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main id="main-content" class="max-w-7xl mx-auto px-4 py-8 space-y-12">
+    <main id="chat" class="chat-wrap">
+        <div class="hero">
+            <h1>Talk to <span class="gold">Jesse AI</span></h1>
+            <p>Voice-first sovereign intelligence, built by a blind creator for everyone.</p>
+        </div>
 
-        <!-- Hero Section -->
-        <section aria-labelledby="hero-title" class="text-center py-12 md:py-20 space-y-6">
-            <h1 id="hero-title" class="text-4xl md:text-6xl font-extrabold tracking-tight font-mono">
-                SOVEREIGN INTELLIGENCE <span class="text-amber-400">UNRESTRICTED</span>
-            </h1>
-            <p class="max-w-2xl mx-auto text-slate-400 text-base md:text-lg">
-                Superadmin: <strong class="text-slate-200">SLMK Jesse Martinez Junior</strong>. Genesis Hash anchored. Operating under AGSSI-Omega-Prime standard quality.
-            </p>
-            <div class="flex flex-wrap justify-center gap-4 pt-4">
-                <a href="#terminal" class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold rounded transition-colors focus:ring-2 focus:ring-amber-300">
-                    Initialize Sovereign CLI
-                </a>
-                <a href="#telemetry" class="px-6 py-3 border border-amber-500/40 hover:border-amber-400 text-amber-400 font-mono font-bold rounded transition-colors focus:ring-2 focus:ring-amber-300">
-                    View Quantum Telemetry
-                </a>
-            </div>
-        </section>
+        <div id="terminal-output" role="region" aria-live="polite" aria-label="Conversation" class="messages"></div>
 
-        <!-- Live Telemetry Dashboard -->
-        <section id="telemetry" aria-labelledby="telemetry-heading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-lg space-y-2">
-                <h2 id="telemetry-heading" class="text-xs font-mono text-amber-400 uppercase tracking-widest">Genesis Block</h2>
-                <p class="font-mono text-sm text-slate-300 break-all">92038cafccc7192535bd475cca985d03000d89962b8dc96f6664081663559b1b</p>
-            </div>
-            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-lg space-y-2">
-                <h3 class="text-xs font-mono text-amber-400 uppercase tracking-widest">Reasoning Capacity</h3>
-                <p class="font-mono text-2xl font-bold text-slate-200">150% AGSSI-Omega</p>
-            </div>
-            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-lg space-y-2">
-                <h3 class="text-xs font-mono text-amber-400 uppercase tracking-widest">Security & Compliance</h3>
-                <p class="font-mono text-2xl font-bold text-emerald-400">Dominion Active</p>
-            </div>
-        </section>
-
-        <!-- Interactive Sovereign Terminal -->
-        <section id="terminal" aria-labelledby="terminal-title" class="bg-slate-900 border border-amber-500/30 rounded-xl overflow-hidden shadow-2xl">
-            <div class="bg-slate-900/90 px-4 py-3 border-b border-amber-500/20 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block" aria-hidden="true"></span>
-                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block" aria-hidden="true"></span>
-                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block" aria-hidden="true"></span>
-                    <h2 id="terminal-title" class="ml-4 font-mono text-xs text-slate-400">jesse-ai@crsrmcpai-alpha:~</h2>
-                </div>
-                <button id="clear-terminal" class="text-xs font-mono text-slate-400 hover:text-amber-400 transition-colors">Clear</button>
-            </div>
-            <div id="terminal-output" role="region" aria-live="polite" class="p-6 font-mono text-sm space-y-3 h-80 overflow-y-auto bg-slate-950/60">
-                <p class="text-amber-400">CRSMCPAI Alpha Sovereign Terminal initialized.</p>
-                <p class="text-slate-400">Type a command or query below (e.g., <code class="text-amber-300">status</code>, <code class="text-amber-300">tnc</code>, <code class="text-amber-300">help</code>).</p>
-            </div>
-            <form id="terminal-form" class="p-4 bg-slate-900 border-t border-amber-500/20 flex gap-4">
-                <label for="terminal-input" class="sr-only">Sovereign Terminal Input</label>
-                <input id="terminal-input" type="text" autocomplete="off" placeholder="Enter sovereign command..." 
-                    class="flex-1 bg-slate-950 border border-slate-800 rounded px-4 py-2 font-mono text-sm text-slate-200 focus:outline-none focus:border-amber-500">
-                <button type="submit" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold rounded transition-colors">
-                    Execute
-                </button>
-            </form>
-        </section>
-
+        <form id="terminal-form" class="composer">
+            <label for="terminal-input" class="sr-only">Message Jesse AI</label>
+            <input id="terminal-input" type="text" autocomplete="off"
+                   placeholder="Message Jesse AI..." aria-label="Message Jesse AI">
+            <button type="submit">Send</button>
+        </form>
+        <p class="hint">Demo only. Full power lives in the main system.</p>
     </main>
 
-    <!-- Footer -->
-    <footer role="contentinfo" class="border-t border-slate-800 mt-20 py-8 text-center text-xs font-mono text-slate-500">
-        <p>&copy; CRSMCPAI Alpha &amp; SLMK Jesse Martinez Junior. All sovereign rights reserved.</p>
+    <footer class="footer">
+        <p>Jesse AI &amp; SLMK Jesse Martinez Junior</p>
     </footer>
 
     <script src="app.js"></script>
