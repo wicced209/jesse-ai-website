@@ -5,41 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jesse AI — Sovereign Intelligence</title>
     <meta name="description" content="Talk to Jesse AI. Voice-first sovereign intelligence by SLMK Jesse Martinez Junior.">
+    <meta name="theme-color" content="#0a0a0a">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <a href="#chat" class="skip-link">Skip to chat</a>
+    <a href="#conversation" class="skip-link">Skip to conversation</a>
 
     <header class="topbar">
         <div class="topbar-inner">
             <div class="brand">
                 <span class="pulse-dot" aria-hidden="true"></span>
-                <span class="brand-name">JESSE AI</span>
+                <span class="brand-name">Jesse AI</span>
             </div>
-            <div class="status-pill">LIVE</div>
+            <div class="topbar-actions">
+                <button id="voice-toggle" class="icon-button" type="button"
+                        aria-pressed="false" aria-label="Read replies aloud">
+                    <span aria-hidden="true">&#128266;</span>
+                </button>
+                <div class="status-pill" id="status-pill" role="status">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span id="status-text">Connecting</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <main id="chat" class="chat-wrap">
-        <div class="hero">
-            <h1>Talk to <span class="gold">Jesse AI</span></h1>
-            <p>Voice-first sovereign intelligence, built by a blind creator for everyone.</p>
-        </div>
+    <main class="page">
 
-        <div id="terminal-output" role="region" aria-live="polite" aria-label="Conversation" class="messages"></div>
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title">Talk to <span class="gold">Jesse AI</span></h1>
+            <p class="hero-sub">Voice-first sovereign intelligence, built by a blind creator for everyone.</p>
+        </section>
 
-        <form id="terminal-form" class="composer">
-            <label for="terminal-input" class="sr-only">Message Jesse AI</label>
-            <input id="terminal-input" type="text" autocomplete="off"
-                   placeholder="Message Jesse AI..." aria-label="Message Jesse AI">
-            <button type="submit">Send</button>
-        </form>
-        <p class="hint">Demo only. Full power lives in the main system.</p>
+        <section class="prompts" aria-label="Try asking">
+            <p class="prompts-label">Try asking</p>
+            <div class="prompt-chips">
+                <button type="button" class="chip" data-prompt="What can you do?">What can you do?</button>
+                <button type="button" class="chip" data-prompt="Tell me about CRSMCPAI Alpha.">About CRSMCPAI Alpha</button>
+                <button type="button" class="chip" data-prompt="Who built you?">Who built you?</button>
+            </div>
+        </section>
+
+        <section id="conversation" class="chat-card" aria-label="Conversation">
+            <div id="terminal-output" class="messages" role="log" aria-live="polite" aria-label="Messages"></div>
+
+            <form id="terminal-form" class="composer" autocomplete="off">
+                <button id="mic-button" class="icon-button mic" type="button"
+                        aria-label="Speak your message" title="Speak">
+                    <span aria-hidden="true">&#127908;</span>
+                </button>
+                <label for="terminal-input" class="sr-only">Message Jesse AI</label>
+                <input id="terminal-input" type="text"
+                       placeholder="Message Jesse AI, or tap the mic&#8230;"
+                       aria-label="Message Jesse AI" maxlength="500">
+                <button id="send-button" class="send-button" type="submit">Send</button>
+            </form>
+            <p class="composer-note" id="mic-note" hidden>Listening&#8230; speak now.</p>
+        </section>
+
+        <p class="fine-print">Public demo. The full system runs privately for its owner.</p>
+
     </main>
 
     <footer class="footer">
-        <p>Jesse AI &amp; SLMK Jesse Martinez Junior</p>
+        <p>Jesse AI &mdash; built by SLMK Jesse Martinez Junior</p>
     </footer>
 
     <script src="app.js"></script>

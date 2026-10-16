@@ -1,10 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const terminalOutput = document.getElementById('terminal-output');
-    const terminalForm = document.getElementById('terminal-form');
-    const terminalInput = document.getElementById('terminal-input');
+    const output = document.getElementById('terminal-output');
+    const form = document.getElementById('terminal-form');
+    const input = document.getElementById('terminal-input');
+    const sendButton = document.getElementById('send-button');
+    const micButton = document.getElementById('mic-button');
+    const micNote = document.getElementById('mic-note');
+    const voiceToggle = document.getElementById('voice-toggle');
+    const statusPill = document.getElementById('status-pill');
+    const statusText = document.getElementById('status-text');
 
     const API_BASE = 'https://web-production-5d719b.up.railway.app';
-    const DEMO_ENDPOINT = API_BASE + '/demo/command';
+
+    /* ---------- helpers ---------- */
 
     const escapeHtml = (text) => {
         const div = document.createElement('div');
@@ -12,60 +19,202 @@ document.addEventListener('DOMContentLoaded', () => {
         return div.innerHTML;
     };
 
-    const appendMessage = (sender, text) => {
-        const wrap = document.createElement('div');
-        const timestamp = new Date().toISOString().split('T')[1].slice(0, 8);
-        const label = sender === 'SYSTEM' ? 'JESSE AI' : sender === 'ERROR' ? 'ERROR' : 'YOU';
-        const cls = sender === 'SYSTEM' ? 'msg msg-jesse' : sender === 'ERROR' ? 'msg msg-error' : 'msg msg-you';
-        wrap.className = cls;
-        wrap.innerHTML = '<div class="who"><span class="time">[' + timestamp + ']</span>' + label + '</div>'
-            + '<div class="body">' + text + '</div>';
-        terminalOutput.appendChild(wrap);
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
-    };
+    const stamp = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    terminalForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const command = terminalInput.value.trim();
-        if (!command) return;
-
-        appendMessage('USER', escapeHtml(command));
-        terminalInput.value = '';
-        terminalInput.disabled = true;
-
-        const thinking = document.createElement('div');
-        thinking.className = 'msg msg-jesse';
-        thinking.innerHTML = '<div class="who">JESSE AI</div><div class="body">Thinking...</div>';
-        terminalOutput.appendChild(thinking);
-        terminalOutput.scrollTop = terminalOutput.scrollHeight;
-
-        try {
-            const response = await fetch(DEMO_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: command, use_llm: true }),
-            });
-
-            thinking.remove();
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                appendMessage('ERROR', escapeHtml(errData.error || 'Server error. Please try again.'));
-                return;
+    /* Jesse: visitors see Jesse AI's answer, not hashes or blocks. */
+    function cleanResponse(text) {
+        const lines = String(text).split('\n');
+        // Drop the leading [bracketed] header block
+        while (lines.length && /^\s*`?\[[^\]]*\]`?\s*$/.test(lines[0])) lines.shift();
+        // Drop leading blank lines left behind
+        while (lines.length && /^\s*$/.test(lines[0])) lines.shift();
+        // Drop trailing blank lines and the verification sign-off, in any order
+        let changed = true;
+        while (changed && lines.length) {
+            changed = false;
+            const last = lines[lines.length - 1];
+            if (/^\s*$/.test(last) || /^\s*(verification\s*:|sovereign living master key)/i.test(last)) {
+                lines.pop();
+                changed = true;
             }
-
-            const data = await response.json();
-            const reply = data.jesse_ai_response || data.message || 'Command received. No text response generated.';
-            appendMessage('SYSTEM', escapeHtml(reply));
-
-        } catch (err) {
-            thinking.remove();
-            appendMessage('ERROR', 'Could not reach Jesse AI. The server may be restarting. Please try again in a moment.');
-        } finally {
-            terminalInput.disabled = false;
-            terminalInput.focus();
         }
+        return lines.join('\n').trim();
+    }
+
+    function appendMessage(sender, text) {
+        const wrap = document.createElement('div');
+        const label = sender === 'SYSTEM' ? 'Jesse AI' : sender === 'ERROR' ? 'Notice' : 'You';
+        const cls = sender === 'SYSTEM' ? 'msg msg-jesse'
+            : sender === 'ERROR' ? 'msg msg-error' : 'msg msg-you';
+        wrap.className = cls;
+        wrap.innerHTML =
+            '<div class="who"><span>' + label + '</span>' +
+            '<span class="time">' + stamp() + '</span></div>' +
+            '<div class="body">' + text + '</div>';
+        output.appendChild(wrap);
+        output.scrollTop = output.scrollHeight;
+        return wrap;
+    }
+
+    function showTyping() {
+        const t = document.createElement('div');
+        t.className = 'msg msg-jesse';
+        t.id = 'typing-row';
+        t.innerHTML = '<div class="who"><span>Jesse AI</span></div>' +
+            '<div class="body"><span class="typing-dots" aria-hidden="true">' +
+            '<span></span><span></span><span></span></span>' +
+            '<span class="sr-only">Jesse AI is thinking</span></div>';
+        output.appendChild(t);
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function hideTyping() {
+        const t = document.getElementById('typing-row');
+        if (t) t.remove();
+    }
+
+    /* ---------- read-aloud (speech synthesis) ---------- */
+
+    let voiceOn = false;
+    let voices = [];
+    const pickVoice = () => {
+        voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+        return voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en') && /female|samantha|zira|google us english/i.test(v.name))
+            || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'))
+            || voices[0] || null;
+    };
+    if (window.speechSynthesis) {
+        pickVoice();
+        speechSynthesis.onvoiceschanged = pickVoice;
+    }
+
+    function speak(text) {
+        if (!voiceOn || !window.speechSynthesis) return;
+        speechSynthesis.cancel();
+        const clean = text.replace(/\[.*?\]/g, '').replace(/```/g, '').trim().slice(0, 600);
+        if (!clean) return;
+        const u = new SpeechSynthesisUtterance(clean);
+        const v = pickVoice();
+        if (v) u.voice = v;
+        u.rate = 1;
+        speechSynthesis.speak(u);
+    }
+
+    voiceToggle.addEventListener('click', () => {
+        voiceOn = !voiceOn;
+        voiceToggle.setAttribute('aria-pressed', String(voiceOn));
+        if (!voiceOn && window.speechSynthesis) speechSynthesis.cancel();
     });
 
-    appendMessage('SYSTEM', 'Welcome to Jesse AI. Type a message below and I will respond.');
+    /* ---------- microphone (speech recognition) ---------- */
+
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Rec) {
+        micButton.style.display = 'none';
+    } else {
+        const rec = new Rec();
+        rec.lang = 'en-US';
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+
+        rec.onresult = (e) => {
+            const said = e.results[0][0].transcript;
+            input.value = said;
+            stopListening();
+            input.focus();
+        };
+        rec.onerror = () => stopListening();
+        rec.onend = () => stopListening();
+
+        function stopListening() {
+            micButton.classList.remove('listening');
+            micButton.setAttribute('aria-label', 'Speak your message');
+            micNote.hidden = true;
+        }
+
+        micButton.addEventListener('click', () => {
+            if (micButton.classList.contains('listening')) {
+                rec.stop();
+                return;
+            }
+            try {
+                rec.start();
+                micButton.classList.add('listening');
+                micButton.setAttribute('aria-label', 'Stop listening');
+                micNote.hidden = false;
+                input.focus();
+            } catch (err) {
+                stopListening();
+            }
+        });
+    }
+
+    /* ---------- quick prompts ---------- */
+
+    document.querySelectorAll('.chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+            input.value = chip.getAttribute('data-prompt');
+            input.focus();
+        });
+    });
+
+    /* ---------- live status ---------- */
+
+    fetch(API_BASE + '/demo/status', { cache: 'no-store' })
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => {
+            const online = d && (d.status === 'ONLINE');
+            statusPill.classList.toggle('online', online);
+            statusPill.classList.toggle('offline', !online);
+            statusText.textContent = online ? 'Live' : 'Offline';
+        })
+        .catch(() => {
+            statusPill.classList.add('offline');
+            statusText.textContent = 'Offline';
+        });
+
+    /* ---------- send ---------- */
+
+    async function send(text) {
+        appendMessage('USER', escapeHtml(text));
+        input.value = '';
+        input.disabled = true;
+        sendButton.disabled = true;
+        showTyping();
+
+        try {
+            const response = await fetch(API_BASE + '/demo/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ command: text, use_llm: true }),
+            });
+            hideTyping();
+
+            if (!response.ok) {
+                appendMessage('ERROR', 'Jesse AI is busy right now. Please try again in a moment.');
+                return;
+            }
+            const data = await response.json();
+            const raw = data.jesse_ai_response || data.message || 'Message received.';
+            const reply = cleanResponse(raw);
+            appendMessage('SYSTEM', escapeHtml(reply));
+            speak(reply);
+        } catch (err) {
+            hideTyping();
+            appendMessage('ERROR', 'Could not reach Jesse AI. The server may be restarting. Please try again in a moment.');
+        } finally {
+            input.disabled = false;
+            sendButton.disabled = false;
+            input.focus();
+        }
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        send(text);
+    });
+
+    appendMessage('SYSTEM', 'Welcome to Jesse AI. Type below, tap a suggestion, or tap the microphone to speak.');
 });
