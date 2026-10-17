@@ -108,29 +108,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---------- microphone (speech recognition) ---------- */
 
+    function stopListening() {
+        micButton.classList.remove('listening');
+        micButton.setAttribute('aria-label', 'Speak your message');
+        micNote.hidden = true;
+    }
+
     const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Rec) {
         micButton.style.display = 'none';
+        if (convoToggle) convoToggle.style.display = 'none';
     } else {
-        const rec = new Rec();
+        rec = new Rec();
         rec.lang = 'en-US';
         rec.interimResults = false;
         rec.maxAlternatives = 1;
 
         rec.onresult = (e) => {
             const said = e.results[0][0].transcript;
-            input.value = said;
             stopListening();
-            input.focus();
+            if (convoMode && said.trim()) {
+                send(said.trim()); // hands-free: auto-send
+            } else {
+                input.value = said;
+                input.focus();
+            }
         };
         rec.onerror = () => stopListening();
-        rec.onend = () => stopListening();
-
-        function stopListening() {
-            micButton.classList.remove('listening');
-            micButton.setAttribute('aria-label', 'Speak your message');
-            micNote.hidden = true;
-        }
+        rec.onend = () => {
+            stopListening();
+            if (convoMode && window.speechSynthesis && !speechSynthesis.speaking) {
+                setTimeout(startListening, 300);
+            }
+        };
 
         micButton.addEventListener('click', () => {
             if (micButton.classList.contains('listening')) {
@@ -149,7 +159,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /* ---------- quick prompts ---------- */
+    /* ---------- hands-free conversation mode ---------- */
+    /* Tap once: speak -> Jesse AI answers aloud -> auto-listens again. */
+
+    const convoToggle = document.getElementById('convo-toggle');
+    let convoMode = false;
+    let rec = null;
+
+    function setConvoMode(on) {
+        convoMode = on;
+        convoToggle.setAttribute('aria-pressed', String(on));
+        convoToggle.classList.toggle('active', on);
+        if (on) {
+            if (!voiceOn) voiceToggle.click(); // replies must be spoken
+            appendMessage('SYSTEM', 'Conversation mode on. Speak, and Jesse AI will answer. Tap the phone button to stop.');
+            startListening();
+        } else {
+            if (window.speechSynthesis) speechSynthesis.cancel();
+            stopListening();
+            appendMessage('SYSTEM', 'Conversation mode off.');
+        }
+    }
+
+    function startListening() {
+        if (!rec || !convoMode) return;
+        try {
+            rec.start();
+            micButton.classList.add('listening');
+            micButton.setAttribute('aria-label', 'Stop listening');
+            micNote.hidden = false;
+        } catch (err) { /* already listening */ }
+    }
+
+    // Speak, then auto-listen when the reply finishes.
+    const _origSpeak = speak;
+    speak = function (text) {
+        if (!convoMode) { _origSpeak(text); return; }
+        if (!window.speechSynthesis) { _origSpeak(text); return; }
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0;
+        if (voices.length) u.voice = voices[0];
+        u.onend = () => { setTimeout(startListening, 400); };
+        u.onerror = () => { setTimeout(startListening, 400); };
+        speechSynthesis.speak(u);
+    };
+
+    if (convoToggle) {
+        convoToggle.addEventListener('click', () => setConvoMode(!convoMode));
+    }
 
     document.querySelectorAll('.chip').forEach((chip) => {
         chip.addEventListener('click', () => {
