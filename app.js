@@ -218,20 +218,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    /* ---------- live status ---------- */
+    /* ---------- live status (with timeout + tap-to-retry) ---------- */
 
-    fetch(API_BASE + '/demo/status', { cache: 'no-store' })
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((d) => {
+    async function checkStatus() {
+        statusText.textContent = 'Connecting';
+        statusPill.classList.remove('online', 'offline');
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        try {
+            const r = await fetch(API_BASE + '/demo/status', { cache: 'no-store', signal: controller.signal });
+            clearTimeout(timer);
+            const d = r.ok ? await r.json() : null;
             const online = d && (d.status === 'ONLINE');
             statusPill.classList.toggle('online', online);
             statusPill.classList.toggle('offline', !online);
-            statusText.textContent = online ? 'Live' : 'Offline';
-        })
-        .catch(() => {
+            statusText.textContent = online ? 'Live' : 'Offline — tap to retry';
+        } catch (e) {
+            clearTimeout(timer);
             statusPill.classList.add('offline');
-            statusText.textContent = 'Offline';
-        });
+            statusText.textContent = 'Offline — tap to retry';
+        }
+    }
+
+    checkStatus();
+    statusPill.addEventListener('click', checkStatus);
 
     /* ---------- send ---------- */
 
@@ -243,11 +253,15 @@ document.addEventListener('DOMContentLoaded', () => {
         showTyping();
 
         try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 90000);
             const response = await fetch(API_BASE + '/demo/command', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ command: text, use_llm: true }),
+                signal: controller.signal,
             });
+            clearTimeout(timer);
             hideTyping();
 
             if (!response.ok) {
