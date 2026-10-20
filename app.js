@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const voiceToggle = document.getElementById('voice-toggle');
     const statusPill = document.getElementById('status-pill');
     const statusText = document.getElementById('status-text');
+    const convoToggle = document.getElementById('convo-toggle');
+    let convoMode = false;
 
     const API_BASE = 'https://web-production-5d719b.up.railway.app';
 
@@ -163,9 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---------- hands-free conversation mode ---------- */
     /* Tap once: speak -> Jesse AI answers aloud -> auto-listens again. */
-
-    const convoToggle = document.getElementById('convo-toggle');
-    let convoMode = false;
 
     function setConvoMode(on) {
         convoMode = on;
