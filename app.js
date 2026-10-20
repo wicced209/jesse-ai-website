@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (v) u.voice = v;
         u.rate = 1;
         speechSynthesis.speak(u);
+        document.dispatchEvent(new CustomEvent('jesse-ai:tts')); /* analytics hook */
     }
 
     voiceToggle.addEventListener('click', () => {
@@ -203,6 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         u.onend = () => { setTimeout(startListening, 400); };
         u.onerror = () => { setTimeout(startListening, 400); };
         speechSynthesis.speak(u);
+        document.dispatchEvent(new CustomEvent('jesse-ai:tts')); /* analytics hook */
     };
 
     if (convoToggle) {
