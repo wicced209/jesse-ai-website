@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
     if (!Rec) {
         micButton.style.display = 'none';
         if (convoToggle) convoToggle.style.display = 'none';
@@ -165,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const convoToggle = document.getElementById('convo-toggle');
     let convoMode = false;
-    let rec = null;
 
     function setConvoMode(on) {
         convoMode = on;
