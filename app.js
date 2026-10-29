@@ -23,25 +23,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const stamp = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    /* Jesse: visitors see Jesse AI's answer, not hashes or blocks. */
+    /* Jesse: visitors see Jesse AI's answer, not hashes or blocks.
+       One cleanup path for BOTH the screen and the spoken voice:
+       internal system lines and raw formatting marks never reach a
+       visitor, in any position, in either mode. */
+    /* CLEANUP START */
+    const INTERNAL_LINE = [
+        /sovereign living master key/i,
+        /sovereign boot context/i,
+        /crsmcpai alpha v2\s*[\u2014\u2013-]/i,
+        /^\s*#?\s*block\s*(number)?\s*[:#]/i,
+        /genesis anchor/i,
+        /^\s*[0-9a-f]{64}\s*$/i,
+        /^\s*status\s*:\s*.*(sovereign|secure\s*\/|online\s*\/\/)/i,
+        /^\s*superadmin\s*:/i,
+        /^\s*verification\s*:/i,
+        /execution confirmed/i,
+        /^\s*command recall\s*:/i,
+    ];
+    const isInternalLine = (line) => INTERNAL_LINE.some((re) => re.test(line));
+
+    function plainText(text) {
+        return String(text)
+            .replace(/\*\*([^*]+)\*\*/g, '$1')
+            .replace(/__([^_]+)__/g, '$1')
+            .replace(/`([^`]*)`/g, '$1')
+            .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+            .replace(/^\s*[-*]\s+/gm, '\u2022 ');
+    }
+
     function cleanResponse(text) {
-        const lines = String(text).split('\n');
+        let lines = String(text).split('\n');
+        // Drop internal system lines wherever they appear
+        lines = lines.filter((line) => !isInternalLine(line));
         // Drop the leading [bracketed] header block
         while (lines.length && /^\s*`?\[[^\]]*\]`?\s*$/.test(lines[0])) lines.shift();
-        // Drop leading blank lines left behind
+        // Drop leading and trailing blank lines
         while (lines.length && /^\s*$/.test(lines[0])) lines.shift();
-        // Drop trailing blank lines and the verification sign-off, in any order
-        let changed = true;
-        while (changed && lines.length) {
-            changed = false;
-            const last = lines[lines.length - 1];
-            if (/^\s*$/.test(last) || /^\s*(verification\s*:|sovereign living master key)/i.test(last)) {
-                lines.pop();
-                changed = true;
-            }
-        }
-        return lines.join('\n').trim();
+        while (lines.length && /^\s*$/.test(lines[lines.length - 1])) lines.pop();
+        return plainText(lines.join('\n')).trim();
     }
+    /* CLEANUP END */
 
     function appendMessage(sender, text) {
         const wrap = document.createElement('div');
@@ -65,7 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         t.innerHTML = '<div class="who"><span>Jesse AI</span></div>' +
             '<div class="body"><span class="typing-dots" aria-hidden="true">' +
             '<span></span><span></span><span></span></span>' +
-            '<span class="sr-only">Jesse AI is thinking</span></div>';
+            '<span class="sr-only">Jesse AI is thinking</span>' +
+            '<div style="margin-top:6px;font-size:0.85em;opacity:0.85">Jesse AI is thinking. A reply can take up to about 30 seconds.</div></div>';
         output.appendChild(t);
         output.scrollTop = output.scrollHeight;
     }
@@ -93,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function speak(text) {
         if (!voiceOn || !window.speechSynthesis) return;
         speechSynthesis.cancel();
-        const clean = text.replace(/\[.*?\]/g, '').replace(/```/g, '').trim().slice(0, 600);
+        const clean = cleanResponse(text).slice(0, 600);
         if (!clean) return;
         const u = new SpeechSynthesisUtterance(clean);
         const v = pickVoice();
@@ -197,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!convoMode) { _origSpeak(text); return; }
         if (!window.speechSynthesis) { _origSpeak(text); return; }
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
+        const u = new SpeechSynthesisUtterance(cleanResponse(text));
         u.rate = 1.0;
         if (voices.length) u.voice = voices[0];
         u.onend = () => { setTimeout(startListening, 400); };
@@ -212,8 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.chip').forEach((chip) => {
         chip.addEventListener('click', () => {
+            if (input.disabled) return;
             input.value = chip.getAttribute('data-prompt');
-            input.focus();
+            if (form.requestSubmit) form.requestSubmit();
+            else input.focus();
         });
     });
 
