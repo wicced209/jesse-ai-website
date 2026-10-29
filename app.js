@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
         /^\s*relay channel\s*:/i,
         /^\s*public demo (interface|response)\b/i,
         /^\s*-{3,}\s*$/,
+        /owner\s*\/\s*superadmin/i,
+        /^\s*execution engine\s*:/i,
     ];
     const isInternalLine = (line) => INTERNAL_LINE.some((re) => re.test(line));
 
@@ -64,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Drop internal system lines wherever they appear. Each line is
         // tested in a plain form ( ** and ` removed, trimmed ) so a
         // bolded footer line like **Block:** cannot slip past the anchors.
-        const plainLine = (line) => line.replace(/\*\*/g, '').replace(/`/g, '').replace(/^\s{0,3}#{1,6}\s+/, '').trim();
+        const plainLine = (line) => line.replace(/\*\*/g, '').replace(/`/g, '').replace(/^\s{0,3}#{1,6}\s+/, '').trim().replace(/^[-\u2022*]\s+/, '');
         lines = lines.filter((line) => !isInternalLine(plainLine(line)));
         // Drop the leading [bracketed] header block
         while (lines.length && /^\s*`?\[[^\]]*\]`?\s*$/.test(lines[0])) lines.shift();
