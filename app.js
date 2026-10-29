@@ -35,11 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
         /^\s*#?\s*block\s*(number)?\s*[:#]/i,
         /genesis anchor/i,
         /^\s*[0-9a-f]{64}\s*$/i,
-        /^\s*status\s*:\s*.*(sovereign|secure\s*\/|online\s*\/\/)/i,
+        /^\s*status\s*:/i,
         /^\s*superadmin\s*:/i,
         /^\s*verification\s*:/i,
         /execution confirmed/i,
         /^\s*command recall\s*:/i,
+        /^\s*genesis\s*:/i,
+        /[0-9a-f]{64}/i,
+        /^\s*execution status\s*:/i,
+        /^\s*relay channel\s*:/i,
+        /^\s*public demo (interface|response)\b/i,
+        /^\s*-{3,}\s*$/,
     ];
     const isInternalLine = (line) => INTERNAL_LINE.some((re) => re.test(line));
 
@@ -48,14 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/\*\*([^*]+)\*\*/g, '$1')
             .replace(/__([^_]+)__/g, '$1')
             .replace(/`([^`]*)`/g, '$1')
+            .replace(/\*([^*]+)\*/g, '$1')
             .replace(/^\s{0,3}#{1,6}\s+/gm, '')
             .replace(/^\s*[-*]\s+/gm, '\u2022 ');
     }
 
     function cleanResponse(text) {
         let lines = String(text).split('\n');
-        // Drop internal system lines wherever they appear
-        lines = lines.filter((line) => !isInternalLine(line));
+        // Drop internal system lines wherever they appear. Each line is
+        // tested in a plain form ( ** and ` removed, trimmed ) so a
+        // bolded footer line like **Block:** cannot slip past the anchors.
+        const plainLine = (line) => line.replace(/\*\*/g, '').replace(/`/g, '').replace(/^\s{0,3}#{1,6}\s+/, '').trim();
+        lines = lines.filter((line) => !isInternalLine(plainLine(line)));
         // Drop the leading [bracketed] header block
         while (lines.length && /^\s*`?\[[^\]]*\]`?\s*$/.test(lines[0])) lines.shift();
         // Drop leading and trailing blank lines
