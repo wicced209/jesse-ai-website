@@ -320,3 +320,12 @@ body {
     .msg .body { border: 1px solid ButtonText; }
     .chip, .icon-button, .send-button { border: 1px solid ButtonText; }
 }
+
+/* Live proof strip + resting state (2026-10-30) */
+.proof-strip{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px}
+.proof-tile{flex:1 1 120px;background:#10161d;border:1px solid #263442;border-radius:8px;padding:12px;text-align:center}
+.proof-value{display:block;font-size:20px;font-weight:700;color:#54e38e}
+.proof-label{display:block;margin-top:4px;font-size:12px;color:#7f92a3}
+.resting{background:#10161d;border:1px solid #d7b45a;border-radius:8px;padding:20px;margin:18px 0;line-height:1.6}
+.resting h2{margin-top:0;color:#d7b45a}
+.resting a{color:#54e38e}
