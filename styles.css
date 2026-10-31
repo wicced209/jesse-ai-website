@@ -329,3 +329,6 @@ body {
 .resting{background:#10161d;border:1px solid #d7b45a;border-radius:8px;padding:20px;margin:18px 0;line-height:1.6}
 .resting h2{margin-top:0;color:#d7b45a}
 .resting a{color:#54e38e}
+.proof-caption{margin:16px 0 0;font-size:13px;color:#d7b45a;letter-spacing:.4px}
+.footer-links a{color:#54e38e}
+.footer-support{color:#7f92a3;font-size:13px;line-height:1.5}
