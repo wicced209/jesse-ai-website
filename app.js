@@ -245,10 +245,17 @@ document.addEventListener('DOMContentLoaded', () => {
         convoToggle.addEventListener('click', () => setConvoMode(!convoMode));
     }
 
+    /* Source tagging (2026-10-30): a chip tap marks the send that
+       follows it as a starter question; every other send is a
+       visitor's own typed (or spoken) words. The backend seals the
+       tag into the record so the two never mix again. */
+    let nextSource = 'visitor';
+
     document.querySelectorAll('.chip').forEach((chip) => {
         chip.addEventListener('click', () => {
             if (input.disabled) return;
             input.value = chip.getAttribute('data-prompt');
+            nextSource = 'chip';
             if (form.requestSubmit) form.requestSubmit();
             else input.focus();
         });
@@ -282,6 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ---------- send ---------- */
 
     async function send(text) {
+        const source = nextSource;
+        nextSource = 'visitor';
         appendMessage('USER', escapeHtml(text));
         input.value = '';
         input.disabled = true;
@@ -294,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(API_BASE + '/demo/command', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command: text, use_llm: true }),
+                body: JSON.stringify({ command: text, use_llm: true, source: source }),
                 signal: controller.signal,
             });
             clearTimeout(timer);
