@@ -263,6 +263,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---------- live status (with timeout + tap-to-retry) ---------- */
 
+    const restingSection = document.getElementById('resting');
+    const proofStrip = document.getElementById('proof-strip');
+    const proofSystem = document.getElementById('proof-system');
+    const proofRelays = document.getElementById('proof-relays');
+    const proofRecords = document.getElementById('proof-records');
+    const proofChain = document.getElementById('proof-chain');
+    let restingTimer = null;
+
+    function setResting(on) {
+        if (restingSection) restingSection.hidden = !on;
+        if (proofStrip) proofStrip.hidden = on;
+        document.querySelectorAll('.chip').forEach(c => { c.disabled = on; });
+        if (input) input.disabled = on;
+        if (sendButton) sendButton.disabled = on;
+        if (on && !restingTimer) {
+            restingTimer = setInterval(checkStatus, 60000);
+        }
+        if (!on && restingTimer) {
+            clearInterval(restingTimer);
+            restingTimer = null;
+        }
+    }
+
+    async function loadProof() {
+        try {
+            await fetch(API_BASE + '/relay/probe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}',
+            });
+            const rr = await fetch(API_BASE + '/relay/status', { cache: 'no-store' });
+            if (rr.ok) {
+                const rd = await rr.json();
+                const s = rd.summary || {};
+                if (proofRelays && typeof s.up === 'number') {
+                    proofRelays.textContent = s.up + ' of ' + s.total;
+                }
+            }
+        } catch (e) { /* relays tile keeps its dash */ }
+        try {
+            const lr = await fetch(API_BASE + '/ledger', { cache: 'no-store' });
+            if (lr.ok) {
+                const ld = await lr.json();
+                if (proofRecords && ld.total_blocks) {
+                    proofRecords.textContent = Number(ld.total_blocks).toLocaleString('en-US');
+                }
+                if (proofChain) {
+                    proofChain.textContent = ld.chain_valid ? 'Verified' : 'Check pending';
+                }
+            }
+        } catch (e) { /* record tiles keep their dashes */ }
+        if (proofSystem) proofSystem.textContent = 'Live';
+    }
+
     async function checkStatus() {
         statusText.textContent = 'Connecting';
         statusPill.classList.remove('online', 'offline');
@@ -275,11 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const online = d && (d.status === 'ONLINE');
             statusPill.classList.toggle('online', online);
             statusPill.classList.toggle('offline', !online);
-            statusText.textContent = online ? 'Live' : 'Offline — tap to retry';
+            statusText.textContent = online ? 'Live' : 'Resting — tap to retry';
+            setResting(!online);
+            if (online) loadProof();
         } catch (e) {
             clearTimeout(timer);
             statusPill.classList.add('offline');
-            statusText.textContent = 'Offline — tap to retry';
+            statusText.textContent = 'Resting — tap to retry';
+            setResting(true);
         }
     }
 
@@ -320,11 +377,14 @@ document.addEventListener('DOMContentLoaded', () => {
             speak(reply);
         } catch (err) {
             hideTyping();
-            appendMessage('ERROR', 'Could not reach Jesse AI. The server may be restarting. Please try again in a moment.');
+            appendMessage('ERROR', 'Could not reach Jesse AI. Checking whether the live system is resting.');
+            checkStatus();
         } finally {
-            input.disabled = false;
-            sendButton.disabled = false;
-            input.focus();
+            if (restingSection && restingSection.hidden) {
+                input.disabled = false;
+                sendButton.disabled = false;
+                input.focus();
+            }
         }
     }
 
