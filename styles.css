@@ -306,6 +306,10 @@ body {
     .msg { max-width: 94%; }
     .send-button { padding: 14px 18px; }
     .brand-name { font-size: 17px; letter-spacing: 2px; }
+    /* Phone header fix (2026-11-04): let the top row wrap instead of squeezing off-screen */
+    .topbar-inner { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; row-gap: 10px; }
+    .topbar-actions { flex-wrap: wrap; }
+    .status-pill { white-space: normal; }
 }
 
 /* ---------- motion + contrast preferences ---------- */
