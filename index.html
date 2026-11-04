@@ -72,7 +72,7 @@
         <section class="resting" id="resting" hidden aria-labelledby="resting-title">
             <h2 id="resting-title">The live system is resting</h2>
             <p>Jesse AI is the sovereign instance of CRSMCPAI Alpha, the operating layer intelligence runs on: persistent memory, context, reasoning, and a record nobody can alter, operated entirely by voice.</p>
-            <p>The live backend is between hosts right now, so the conversation is paused. Nothing is lost. The full system and its sealed record are preserved and verified. On October 30, 2026, the record stood at more than 4,800 sealed entries, every one verified.</p>
+            <p>The live backend is between hosts right now, so the conversation is paused. Nothing is lost. The full system and its sealed record are preserved and verified. On October 31, 2026, at the last live check, the record stood at 5,132 sealed entries, every one verified.</p>
             <p>When the system is rehosted, this page wakes up on its own. Until then, you can reach Jesse on <a href="https://www.facebook.com/Jess4rmDaWest">Facebook</a>.</p>
         </section>
 
@@ -104,6 +104,73 @@
 
         <p class="fine-print">Public demo. The full system runs privately for its owner.</p>
 
+        <section class="panels" aria-labelledby="panels-title">
+            <h2 id="panels-title">Inside the system</h2>
+            <p class="panels-sub">Four views of the operating layer underneath the conversation. Live values come from the system itself. When the system is resting, the panels say so. Nothing here is staged.</p>
+
+            <article class="panel" aria-labelledby="panel-stack-title">
+                <h3 id="panel-stack-title"><span class="panel-num" aria-hidden="true">1</span> The stack, inside out</h3>
+                <p>Built core first, surface last, because its creator works by voice, not by sight. Open any layer to see what it does.</p>
+                <details>
+                    <summary>Security and record core</summary>
+                    <p>Owner authentication, cryptographic identity, and the Golden Ledger: an append-only, hash-chained record that seals every significant event. If an entry were altered, its link in the chain would fail, and the failure would show.</p>
+                </details>
+                <details>
+                    <summary>Core processing</summary>
+                    <p>Configuration, structured logging, routing, and the application runner. The quiet machinery every other layer stands on.</p>
+                </details>
+                <details>
+                    <summary>Intelligence and agents</summary>
+                    <p>Specialized agents — Planner, Builder, Guardian, Memory, Tool, and Scheduler — working over a message bus, with a governed tool set. Work is planned, built, and checked in steps, not improvised.</p>
+                </details>
+                <details>
+                    <summary>Application and interface</summary>
+                    <p>The server endpoints, this public demo, and the read-backs the owner uses to verify everything himself. What you are looking at is the smallest surface of the system, by design.</p>
+                </details>
+                <details>
+                    <summary>Relay layer</summary>
+                    <p>Fourteen channels to models and internal rails. The language model is a replaceable relay. Execution lives in the stack — memory, reasoning, and the record — so the system survives any single model, provider, or host.</p>
+                </details>
+                <p class="panel-state" id="stack-state">Checking the system.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-relay-title">
+                <h3 id="panel-relay-title"><span class="panel-num" aria-hidden="true">2</span> The relay corridor</h3>
+                <p>Four model relays — Gemini, Groq, OpenRouter, and Z.ai — plus the corridor, mesh, pulse, and control rails that carry work underneath them.</p>
+                <p class="panel-big" id="relay-big">Checking</p>
+                <ul class="relay-list" id="relay-list"></ul>
+                <p class="panel-note" id="relay-note">Checking the corridor.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-ledger-title">
+                <h3 id="panel-ledger-title"><span class="panel-num" aria-hidden="true">3</span> The sealed record</h3>
+                <p>Every significant event is sealed into an append-only ledger. Each entry links to the one before it, so altering any entry breaks the chain, and the break can be detected by anyone who checks.</p>
+                <div class="panel-values">
+                    <div class="panel-value">
+                        <span class="panel-value-num" id="ledger-count">&mdash;</span>
+                        <span class="panel-value-label">Sealed records</span>
+                    </div>
+                    <div class="panel-value">
+                        <span class="panel-value-num" id="ledger-chain">&mdash;</span>
+                        <span class="panel-value-label">Record chain</span>
+                    </div>
+                </div>
+                <p class="panel-note" id="ledger-note">Checking the record.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-seal-title">
+                <h3 id="panel-seal-title"><span class="panel-num" aria-hidden="true">4</span> Sealing, the chain, and the manifest</h3>
+                <ol class="seal-steps">
+                    <li><strong>Seal.</strong> When something significant happens, the system writes it into the record and seals it. Sealed means it cannot be quietly rewritten later.</li>
+                    <li><strong>Chain.</strong> Each seal is linked to the seal before it. Change one entry and every link after it fails its check.</li>
+                    <li><strong>Manifest.</strong> The whole system can be exported as one package with a manifest: every file listed with its fingerprint, so anyone can check, file by file, that what they hold is exactly what was sealed.</li>
+                    <li><strong>Plug in anywhere.</strong> The record layer sits underneath the model, not inside it, so it can sit underneath other systems too, whichever model is on top.</li>
+                </ol>
+                <p>Other systems are adding record-keeping like this onto their systems now, as an afterthought. This system was built with it at the core, from the first day, because it exists to protect what people create.</p>
+                <p class="panel-note">Check it yourself: <a href="https://github.com/wicced209/Jesse-AI-server-New">see the code</a>.</p>
+            </article>
+        </section>
+
     </main>
 
     <footer class="footer">
@@ -118,5 +185,6 @@
 
     <script src="demo-events.js" defer></script>
     <script src="app.js"></script>
+    <script src="panels.js" defer></script>
 </body>
 </html>
