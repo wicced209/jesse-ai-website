@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jesse AI Terminal</title>
+<style>
+:root{color-scheme:dark;--bg:#080b0f;--panel:#10161d;--line:#263442;--text:#d9e2ea;--muted:#7f92a3;--green:#54e38e;--gold:#d7b45a;--red:#ff7777}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px ui-monospace,SFMono-Regular,Menlo,monospace;min-height:100vh}
+main{max-width:980px;margin:0 auto;padding:20px}.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0 14px}.brand{color:var(--green);font-weight:700}.status{color:var(--muted);font-size:12px}.status b{color:var(--green)}
+.terminal{margin-top:18px;border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden;box-shadow:0 12px 50px #0008}.bar{padding:9px 13px;color:var(--muted);border-bottom:1px solid var(--line);font-size:12px}.out{min-height:360px;max-height:62vh;overflow:auto;padding:16px;white-space:pre-wrap;line-height:1.5}.prompt{color:var(--green)}.err{color:var(--red)}
+.form{display:flex;border-top:1px solid var(--line);padding:12px;gap:10px}.form span{color:var(--green);padding-top:11px}.form input{flex:1;background:#080b0f;color:var(--text);border:1px solid var(--line);border-radius:5px;padding:10px;font:inherit}.form button,.quick button{background:#18232d;color:var(--text);border:1px solid var(--line);border-radius:5px;padding:9px 12px;font:inherit;cursor:pointer}.form button:hover,.quick button:hover{border-color:var(--gold);color:var(--gold)}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hint{color:var(--muted);font-size:12px;margin-top:14px;line-height:1.5}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:600px){main{padding:12px}.form{flex-wrap:wrap}.form input{min-width:70%}.form button{flex:1}.out{min-height:300px}}
+</style></head><body><main><div class="top"><div class="brand">JESSE_AI :: CRSMCPAI_ALPHA</div><div class="status">● <b id="conn">CHECKING</b></div></div>
+<div class="terminal"><div class="bar">terminal session · Dominion stack connected · type <b>help</b> for commands</div><div id="out" class="out" role="log" aria-live="polite" aria-atomic="false" tabindex="0"></div><div id="sr-status" class="sr-only" role="status" aria-live="polite"></div><form id="form" class="form"><span>jesse@alpha:~$</span><label for="cmd" style="position:absolute;left:-9999px">Message Jesse AI</label><input id="cmd" autocomplete="off" autofocus aria-label="Message Jesse AI"><button type="button" id="mic">MIC</button><button type="submit">EXECUTE</button></form></div>
+<div class="quick"><button data-cmd="status">status</button><button data-cmd="handshake">handshake</button><button data-cmd="audit">audit</button><button data-cmd="ledger">ledger</button><button data-cmd="help">help</button></div>
+<div class="hint">This is Jesse's private owner terminal. Keep this address to yourself. If the stack is asleep, this page stays open and keeps trying until the stack wakes, then your message goes through and the answer is read back.</div></main>
+<script>
+const API='https://e3072e8b-4496-41ef-b543-616c5a23ddbd-00-2n0pjrl2owxrm.worf.replit.dev';
+const out=document.getElementById('out'),form=document.getElementById('form'),input=document.getElementById('cmd'),mic=document.getElementById('mic'),conn=document.getElementById('conn');
+function print(x,cls=''){const d=document.createElement('div');d.className=cls;d.textContent=x;out.appendChild(d);out.scrollTop=out.scrollHeight}
+function speak(x){if('speechSynthesis' in window){window.speechSynthesis.cancel();window.speechSynthesis.speak(new SpeechSynthesisUtterance(x))}}
+function printHidden(x){const d=document.createElement('div');d.setAttribute('aria-hidden','true');d.textContent=x;out.appendChild(d);out.scrollTop=out.scrollHeight}
+function announce(x){const s=document.getElementById('sr-status');if(s){s.textContent='';setTimeout(function(){s.textContent=x},40)}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function local(c){
+  if(c==='help') return `Available commands:
+  status       full Dominion status
+  handshake    verify CRSMCPAI Alpha identity
+  audit        quantum audit
+  ledger       recent ledger blocks
+  clear        clear terminal
+  any text     execute through CRSMCPAI Alpha`;
+  if(c==='clear'){out.innerHTML='';return ''}
+  return null;
+}
+async function sendOnce(c){
+  const r=await fetch(API+'/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:c,user:'jesse_martinez_jr',use_llm:true})});
+  const t=await r.text();
+  if(!r.ok) throw new Error(t||('HTTP '+r.status));
+  return JSON.parse(t);
+}
+async function run(c){
+  c=c.trim();
+  if(!c){print('Please enter a command first.','err');return}
+  input.disabled=true;
+  print('jesse@alpha:~$ '+c,'prompt');
+  print('Executing through CRSMCPAI Alpha...','prompt');
+  const l=local(c.toLowerCase());
+  if(l!==null){if(l)print(l);input.disabled=false;input.focus();return}
+  let announcedWait=false;
+  for(let attempt=1;attempt<=18;attempt++){
+    try{
+      const data=await sendOnce(c);
+      conn.textContent='ONLINE';
+      printHidden(JSON.stringify(data,null,2));
+      const stack=data.stack_execution||{};
+      if(data.spoken_response){print(data.spoken_response)}
+      const summary=data.spoken_response||((data.CRSMCPAI_ALPHA||'Result')+'; status '+(data.status||'unknown')+'. Ledger entry '+(stack.ledger_index??'not reported')+'.');
+      speak(summary);announce(summary);
+      out.focus();
+      input.disabled=false;input.focus();
+      return;
+    }catch(e){
+      if(attempt===18){print('ERROR: the stack did not answer after many tries. Your message was not executed. Try again later, or tell Muse to wake the stack.','err');speak('The stack did not answer after many tries. Your message was not executed.');announce('The stack did not answer.');input.disabled=false;input.focus();return}
+      conn.textContent='WAKING';
+      if(!announcedWait){print('The stack is asleep. This page will keep trying while it wakes. Keep this page open.','prompt');speak('The stack is asleep. I will keep trying while it wakes. Keep this page open.');announcedWait=true}
+      announce('The stack is asleep. Still trying.');
+      await sleep(20000);
+    }
+  }
+}
+form.addEventListener('submit',e=>{e.preventDefault();run(input.value);input.value=''});
+const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(SpeechRecognition){const rec=new SpeechRecognition();rec.lang='en-US';rec.interimResults=false;rec.onstart=()=>{mic.textContent='LISTENING';print('Listening...','prompt')};rec.onresult=e=>{input.value=e.results[0][0].transcript;run(input.value);input.value=''};rec.onerror=()=>{mic.textContent='MIC';print('Voice input was not available. You can type instead.','err')};rec.onend=()=>{mic.textContent='MIC'};mic.onclick=()=>rec.start()}else{mic.disabled=true;mic.title='Use iPhone dictation in the command field'}
+document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>run(b.dataset.cmd));
+async function checkConn(){try{const r=await fetch(API+'/health');if(r.ok){conn.textContent='ONLINE'}else{conn.textContent='WAKING'}}catch(e){conn.textContent='WAKING'}}
+print('Jesse AI terminal ready. CRSMCPAI Alpha and Dominion infrastructure online.');announce('Jesse AI terminal ready.');checkConn();
+</script></body></html>
