@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const convoToggle = document.getElementById('convo-toggle');
     let convoMode = false;
 
-    const API_BASE = 'https://web-production-5d719b.up.railway.app';
+    const API_BASE = 'https://e3072e8b-4496-41ef-b543-616c5a23ddbd-00-2n0pjrl2owxrm.worf.replit.dev';
 
     /* ---------- helpers ---------- */
 
