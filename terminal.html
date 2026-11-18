@@ -13,7 +13,7 @@ main{max-width:980px;margin:0 auto;padding:20px}.top{display:flex;justify-conten
 <div class="quick"><button data-cmd="status">status</button><button data-cmd="handshake">handshake</button><button data-cmd="audit">audit</button><button data-cmd="ledger">ledger</button><button data-cmd="help">help</button></div>
 <div class="hint">This is Jesse's private owner terminal. Keep this address to yourself. If the stack is asleep, this page stays open and keeps trying until the stack wakes, then your message goes through and the answer is read back.</div></main>
 <script>
-const API='https://e3072e8b-4496-41ef-b543-616c5a23ddbd-00-2n0pjrl2owxrm.worf.replit.dev';
+const API='https://jesse-ai.onrender.com';
 const out=document.getElementById('out'),form=document.getElementById('form'),input=document.getElementById('cmd'),mic=document.getElementById('mic'),conn=document.getElementById('conn');
 function print(x,cls=''){const d=document.createElement('div');d.className=cls;d.textContent=x;out.appendChild(d);out.scrollTop=out.scrollHeight}
 function speak(x){if('speechSynthesis' in window){window.speechSynthesis.cancel();window.speechSynthesis.speak(new SpeechSynthesisUtterance(x))}}
