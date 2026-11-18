@@ -14,7 +14,7 @@
    ever rendered. Counts and plain status words only.
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = 'https://web-production-5d719b.up.railway.app';
+    const API_BASE = 'https://jesse-ai.onrender.com';
 
     const stackState = document.getElementById('stack-state');
     const relayBig = document.getElementById('relay-big');
