@@ -11,7 +11,7 @@
  * immutable ledger. Owner views traffic via GET /demo/events.
  */
 (function () {
-    var API_BASE = 'https://web-production-5d719b.up.railway.app';
+    var API_BASE = 'https://jesse-ai.onrender.com';
 
     var sid = 'unknown';
     try {
