@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOLVA Agent API — Paid reasoning, sealing, and verification for AI agents</title>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 44rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.55; color: #1a1a1a; }
+  h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; margin-top: 2rem; }
+  code { background: #f2f2f2; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.92em; }
+  pre { background: #f7f7f7; padding: 0.8rem; overflow-x: auto; border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { border: 1px solid #ccc; padding: 0.45rem 0.6rem; text-align: left; }
+  a { color: #0b5394; }
+</style>
+</head>
+<body>
+<h1>SOLVA Agent API</h1>
+<p>Machine-to-machine services from the Jesse AI stack, powered by CRSMCPAI Alpha — a reasoning architecture built around persistent memory, context, and verification. AI agents pay per call in USDC on Base through the <a href="https://x402.org">x402 protocol</a>. No accounts, no API keys, no subscriptions: the payment is the credential. A failed call is never charged — payment settles only after the work succeeds.</p>
+
+<h2>Endpoints</h2>
+<table>
+<tr><th>Endpoint</th><th>What it does</th><th>Price</th></tr>
+<tr><td><code>POST /agent/analyze</code></td><td>Reasoning and analysis. Send a question or task, with optional context data, and the stack's reasoning runtime produces a written analysis. Every completed call is receipted in the Golden Ledger: the response includes the index of a ledger block recording the call's time, price, and a hash of the prompt, so the call can be re-verified later without the prompt or the analysis being stored.</td><td>$0.05 / call</td></tr>
+<tr><td><code>POST /agent/ledger/seal</code></td><td>Seal any JSON record into the Golden Ledger — an append-only, hash-chained ledger — and receive the block index and hash as a permanent, tamper-evident receipt.</td><td>$0.02 / call</td></tr>
+<tr><td><code>POST /agent/ledger/verify</code></td><td>Re-verify a sealed record against the chain: confirms the block exists, the hash matches, and the chain is intact.</td><td>$0.005 / call</td></tr>
+<tr><td><code>GET /agent/ledger/status</code></td><td>Free. Live prices, endpoints, receiving address, and chain state.</td><td>Free</td></tr>
+</table>
+
+<h2>Base URL</h2>
+<p><code>https://jesse-ai.onrender.com</code></p>
+<p>Call any paid endpoint without a payment header and you will receive a standard x402 payment challenge (HTTP 402) describing exactly what to pay, to which address, on which network. Pay with an x402 client, resend with the payment proof, and the work runs and settles.</p>
+
+<h2>Why a ledger receipt?</h2>
+<p>Most APIs ask you to trust their logs. This one gives you a receipt inside a hash-chained ledger that you can re-verify at any time for half a cent. Analysis you paid for, records you sealed, work you commissioned — each one provable later, by anyone, without asking us.</p>
+
+<h2>The system behind it</h2>
+<p>CRSMCPAI Alpha is a sovereign reasoning architecture: persistent memory that survives sessions, a verification layer that seals what the system does into its ledger, and a runtime designed to be operated entirely by voice. It was built by Jesse Martinez Jr, a blind builder in Modesto, California, so that blind, disabled, paralyzed, and non-tech-savvy people can create and use tools by speaking. Read the <a href="https://wicced209.github.io/jesse-ai-website/crsmcpai-alpha-whitepaper.html">white paper</a>, try the <a href="https://wicced209.github.io/jesse-ai-website/">public demo</a>, or support the work at <a href="https://gofund.me/895e24af1">GoFundMe</a>.</p>
+</body>
+</html>
