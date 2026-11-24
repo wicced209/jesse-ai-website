@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clipboard Reader</title>
+</head>
+<body>
+<h1>Clipboard Reader</h1>
+<p>Press the button to read the current clipboard text and show it below.</p>
+<button id="readBtn" type="button">Read the clipboard</button>
+<p id="status">Not read yet.</p>
+<pre id="output" style="white-space: pre-wrap; word-break: break-all;"></pre>
+<script>
+document.getElementById('readBtn').addEventListener('click', async () => {
+  const status = document.getElementById('status');
+  const output = document.getElementById('output');
+  try {
+    const text = await navigator.clipboard.readText();
+    status.textContent = 'Clipboard read OK. Length: ' + text.length + ' characters.';
+    output.textContent = text;
+  } catch (err) {
+    status.textContent = 'Clipboard read failed: ' + err.name + ' - ' + err.message;
+    output.textContent = '';
+  }
+});
+</script>
+</body>
+</html>
