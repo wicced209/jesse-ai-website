@@ -26,17 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setRestingPanels() {
         if (stackState) {
-            stackState.textContent = 'Resting now. The layers below are the verified architecture. Live values return on their own when the system is rehosted.';
+            stackState.textContent = 'Resting now. The layers below are the verified architecture. Live values return on their own when the system wakes.';
         }
         if (relayBig) relayBig.textContent = 'Resting';
         if (relayList) relayList.replaceChildren();
         if (relayNote) {
             relayNote.textContent = 'The corridor is quiet while the system rests. Nothing here is simulated — when the system is live, this panel reads the corridor itself.';
         }
-        if (ledgerCount) ledgerCount.textContent = '5,132';
-        if (ledgerChain) ledgerChain.textContent = 'Verified at last check';
+        if (ledgerCount) ledgerCount.textContent = '—';
+        if (ledgerChain) ledgerChain.textContent = 'Resting';
         if (ledgerNote) {
-            ledgerNote.textContent = 'On October 31, 2026, at the last live check before the system rested, the record stood at 5,132 sealed entries and the full chain verified. The record is preserved in the recovery package and the code repository.';
+            ledgerNote.textContent = 'The system is resting. When it wakes, this panel reads the sealed record from the system itself. The count is never typed in by hand.';
         }
     }
 
