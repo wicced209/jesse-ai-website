@@ -1,12 +1,12 @@
 # Jesse AI — Public Demo Website
 
-Static single-page site where visitors can try Jesse AI live. Calls the Railway API directly from the browser (CORS is already enabled on the server: `access-control-allow-origin: *`).
+Static single-page site where visitors can try Jesse AI live. Calls the API at `https://jesse-ai.onrender.com` directly from the browser (CORS is already enabled on the server: `access-control-allow-origin: *`). The stack's primary home is Render Free, where it has lived since 2026-11-17: the free instance sleeps after 15 quiet minutes and wakes in about a minute, and no card is on file anywhere.
 
 ## Files
 
 - `index.html` — semantic, screen-reader-friendly page: hero, Try-It demo, capabilities, accessibility statement, about.
 - `styles.css` — high-contrast dark theme, visible focus rings, `prefers-reduced-motion` support.
-- `app.js` — POSTs `{command, user, use_llm}` to the Railway `/command` endpoint, renders the reply into an `aria-live` region.
+- `app.js` — POSTs `{command, user, use_llm}` to the `/command` endpoint at `jesse-ai.onrender.com` (Render), renders the reply into an `aria-live` region.
 
 ## Recommended hosting: Cloudflare Pages (free)
 
@@ -41,7 +41,7 @@ No build step, no server code, no environment variables needed.
 
 ## Before going live — one server change needed
 
-The Railway `/command` endpoint currently authorizes a username allowlist and rejects unknown users (`{"error":"Unauthorized","user":"guest"}` — verified 2026-10-16). The demo posts as `user: "demo"` (see `DEMO_USER` in `app.js`). For the public Try-It box to work, the server operator must either:
+The `/command` endpoint authorized a username allowlist and rejected unknown users (`{"error":"Unauthorized","user":"guest"}` — verified 2026-10-16, when the stack ran on Railway; it has lived on Render since 2026-11-17). The demo posts as `user: "demo"` (see `DEMO_USER` in `app.js`). For the public Try-It box to work, the server operator must either:
 
 - (a) add a limited demo identity (e.g. `demo`) to the allowlist, ideally rate-limited, or
 - (b) add a dedicated public endpoint (e.g. `POST /demo/command`) with strict rate limiting and no access to privileged routes.
@@ -57,6 +57,7 @@ Until then, visitors will see the friendly error message baked into `app.js`.
 
 ## Limitations
 
-- The demo is only as capable as the Railway API's public surface. Audio/video generation endpoints exist on the server but are not wired into this page yet — easy follow-up.
+- The free Render instance sleeps after 15 quiet minutes; the first call after a rest waits about a minute while it wakes.
+- The demo is only as capable as the API's public surface on Render. Audio/video generation endpoints exist on the server but are not wired into this page yet — easy follow-up.
 - No analytics, no backend, no user accounts — by design (static site).
 - Long LLM responses can take up to ~90s; the UI shows a waiting status and times out gracefully.
