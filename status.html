@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status — Jesse AI</title>
+    <meta name="description" content="Public status of the Jesse AI stack: what the system itself reports, checked by this page, with every value labelled by when it was checked.">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <a href="#main" class="skip-link">Skip to main content</a>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <span class="pulse-dot" aria-hidden="true"></span>
+                <span class="brand-name">Jesse AI</span>
+            </div>
+            <div class="topbar-actions">
+                <a href="index.html">Talk to Jesse AI</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="page" id="main" tabindex="-1">
+
+        <section class="hero" aria-labelledby="status-title">
+            <h1 id="status-title">System <span class="gold">status</span></h1>
+            <p class="hero-sub">What the system itself reports, checked by this page when you opened it. Every value says when it was checked. Anything this page could not check is labelled not checked &mdash; never guessed.</p>
+        </section>
+
+        <div aria-live="polite">
+            <p class="panel-state" id="overall-line">Checking the system now.</p>
+        </div>
+        <p>
+            <button type="button" class="send-button" id="recheck">Check again</button>
+        </p>
+
+        <section class="panels" aria-label="Status panels">
+
+            <article class="panel" aria-labelledby="panel-health-title">
+                <h3 id="panel-health-title"><span class="panel-num" aria-hidden="true">1</span> Is the system up?</h3>
+                <p class="panel-big" id="health-value">Checking</p>
+                <p id="health-detail">Asking the system for its health answer.</p>
+                <p class="panel-state" id="health-checked">Not checked yet.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-sleep-title">
+                <h3 id="panel-sleep-title"><span class="panel-num" aria-hidden="true">2</span> Why the first answer can be slow</h3>
+                <p>The live system runs on a free hosting tier. It sleeps after about fifteen quiet minutes, and waking takes about a minute. A slow first answer is the system waking up, not the system failing &mdash; and a check from this page can itself be the knock that wakes it. If a check below comes back not checked, wait about a minute and press Check again.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-relay-title">
+                <h3 id="panel-relay-title"><span class="panel-num" aria-hidden="true">3</span> The relay paths</h3>
+                <p>The channels that carry work between the system and its model relays and internal rails. This panel shows the state the system has on record for each channel, with the age of its last probe. This page does not run fresh probes; it reports the record, labelled with its age.</p>
+                <p class="panel-big" id="relay-value">Checking</p>
+                <ul class="relay-list" id="relay-list"></ul>
+                <p class="panel-state" id="relay-checked">Not checked yet.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-ledger-title">
+                <h3 id="panel-ledger-title"><span class="panel-num" aria-hidden="true">4</span> The sealed record</h3>
+                <p>The running system reports the state of the record chain it is answering from: how many sealed records that chain holds, and whether the chain checks out.</p>
+                <div class="panel-values">
+                    <div class="panel-value">
+                        <span class="panel-value-num" id="ledger-count">&mdash;</span>
+                        <span class="panel-value-label">Sealed records in the active chain</span>
+                    </div>
+                    <div class="panel-value">
+                        <span class="panel-value-num" id="ledger-chain">&mdash;</span>
+                        <span class="panel-value-label">Chain check</span>
+                    </div>
+                </div>
+                <p class="panel-state" id="ledger-checked">Not checked yet.</p>
+            </article>
+
+            <article class="panel" aria-labelledby="panel-families-title">
+                <h3 id="panel-families-title"><span class="panel-num" aria-hidden="true">5</span> The family directory</h3>
+                <p>The stack is built as families &mdash; groups of machinery that each do one part of the work. The full directory read is heavy: it assembles every family&rsquo;s own report, and on the free hosting tier it can take longer than a page should wait. When it answers, this panel shows what it reported. When it does not, this panel says not checked rather than guessing a count.</p>
+                <p class="panel-big" id="families-value">Checking</p>
+                <p class="panel-state" id="families-checked">Not checked yet.</p>
+            </article>
+
+        </section>
+
+        <p class="fine-print">Public status. The full system runs privately for its owner. See also <a href="privacy.html">privacy and terms</a>.</p>
+
+    </main>
+
+    <footer class="footer">
+        <p>Jesse AI &mdash; built by SLMK Jesse Martinez Junior</p>
+        <p class="footer-links">
+            <a href="index.html">Talk to Jesse AI</a>
+            <span aria-hidden="true"> &middot; </span>
+            <a href="agent-api.html">SOLVA Agent API — for AI agents</a>
+            <span aria-hidden="true"> &middot; </span>
+            <a href="privacy.html">Privacy and terms</a>
+            <span aria-hidden="true"> &middot; </span>
+            <a href="https://www.facebook.com/Jess4rmDaWest">Reach Jesse on Facebook</a>
+        </p>
+        <p class="footer-support">Support this work through Jesse's GoFundMe, <a href="https://www.gofundme.com/f/help-jesse-build-a-sovereign-ai-future">Help Jesse Build a Sovereign AI Future</a>.</p>
+    </footer>
+
+    <script>
+    (function () {
+        'use strict';
+        var API_BASE = 'https://jesse-ai.onrender.com';
+
+        function $(id) { return document.getElementById(id); }
+
+        function fmtClock(d) {
+            return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+        }
+
+        function fmtAge(epochSeconds, now) {
+            if (epochSeconds === null || epochSeconds === undefined) {
+                return 'not probed yet since the system last woke';
+            }
+            var ageSec = Math.max(0, Math.round(now / 1000 - epochSeconds));
+            if (ageSec < 10) return 'probed just now';
+            if (ageSec < 60) return 'probed ' + ageSec + ' seconds ago';
+            var min = Math.floor(ageSec / 60);
+            if (min < 60) return 'probed ' + min + (min === 1 ? ' minute' : ' minutes') + ' ago';
+            var hr = Math.floor(min / 60);
+            return 'probed ' + hr + (hr === 1 ? ' hour' : ' hours') + ' ago';
+        }
+
+        function fetchJson(path, timeoutMs) {
+            var controller = new AbortController();
+            var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+            return fetch(API_BASE + path, { cache: 'no-store', signal: controller.signal })
+                .then(function (r) {
+                    clearTimeout(timer);
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .catch(function (e) {
+                    clearTimeout(timer);
+                    throw e;
+                });
+        }
+
+        var results = { health: null, relay: null, ledger: null, families: null };
+
+        function renderOverall() {
+            var line = $('overall-line');
+            var parts = [];
+            if (results.health === 'ok') parts.push('the system answered');
+            else if (results.health === 'fail') parts.push('the system did not answer the health check');
+            if (results.relay === 'ok') parts.push('the relay record was read');
+            else if (results.relay === 'fail') parts.push('the relay record was not checked');
+            if (results.ledger === 'ok') parts.push('the sealed record was read');
+            else if (results.ledger === 'fail') parts.push('the sealed record was not checked');
+            if (results.families === 'ok') parts.push('the family directory answered');
+            else if (results.families === 'fail') parts.push('the family directory was not checked');
+            if (!parts.length) { line.textContent = 'Checking the system now.'; return; }
+            line.textContent = 'Last check: ' + parts.join('; ') + '.';
+        }
+
+        function checkHealth() {
+            var value = $('health-value'), detail = $('health-detail'), checked = $('health-checked');
+            value.textContent = 'Checking';
+            detail.textContent = 'Asking the system for its health answer.';
+            return fetchJson('/health', 100000).then(function (d) {
+                results.health = 'ok';
+                var now = new Date();
+                value.textContent = d.status ? String(d.status) : 'Answered';
+                var bits = [];
+                if (d.system) bits.push('System: ' + d.system);
+                if (d.version) bits.push('Version: ' + d.version);
+                if (d.owner) bits.push('Owner: ' + d.owner);
+                detail.textContent = bits.length ? bits.join('. ') + '.' : 'The system answered its health check.';
+                checked.textContent = 'Checked at ' + fmtClock(now) + ', as reported by the system itself.';
+            }).catch(function () {
+                results.health = 'fail';
+                value.textContent = 'Not checked';
+                detail.textContent = 'No answer came back. If the system was asleep, this check may have been the knock that wakes it — wait about a minute and press Check again.';
+                checked.textContent = 'Not checked — the system did not answer this page’s request.';
+            }).then(renderOverall);
+        }
+
+        function checkRelay() {
+            var value = $('relay-value'), list = $('relay-list'), checked = $('relay-checked');
+            value.textContent = 'Checking';
+            list.innerHTML = '';
+            return fetchJson('/relay/status', 30000).then(function (d) {
+                results.relay = 'ok';
+                var now = Date.now();
+                var channels = d.channels || {};
+                var ids = Object.keys(channels);
+                var up = 0;
+                ids.forEach(function (id) {
+                    var c = channels[id] || {};
+                    if (String(c.state || '').toUpperCase() === 'UP' || String(c.state || '').toUpperCase() === 'LIVE') up++;
+                    var li = document.createElement('li');
+                    var state = c.state ? String(c.state) : 'state not reported';
+                    var text = id + ' — ' + state + ', ' + fmtAge(c.last_probe, now);
+                    if (typeof c.latency_ms === 'number') text += ', last latency ' + c.latency_ms + ' ms';
+                    if (c.isolated) text += ', isolated';
+                    li.textContent = text;
+                    list.appendChild(li);
+                });
+                var summary = d.summary || {};
+                var total = typeof summary.total === 'number' ? summary.total : ids.length;
+                value.textContent = up + ' of ' + total + ' channels report up';
+                checked.textContent = 'Read at ' + fmtClock(new Date(now)) + '. States and probe ages are the system’s own record, shown as recorded — this page ran no fresh probes.';
+            }).catch(function () {
+                results.relay = 'fail';
+                value.textContent = 'Not checked';
+                checked.textContent = 'Not checked — the relay record did not answer this page’s request.';
+            }).then(renderOverall);
+        }
+
+        function checkLedger() {
+            var count = $('ledger-count'), chain = $('ledger-chain'), checked = $('ledger-checked');
+            return fetchJson('/ledger', 30000).then(function (d) {
+                results.ledger = 'ok';
+                count.textContent = (typeof d.total_blocks === 'number') ? d.total_blocks.toLocaleString('en-US') : 'Not reported';
+                chain.textContent = (d.chain_valid === true) ? 'Valid' : (d.chain_valid === false ? 'Check failed' : 'Not reported');
+                checked.textContent = 'Checked at ' + fmtClock(new Date()) + ', as reported by the running system.';
+            }).catch(function () {
+                results.ledger = 'fail';
+                count.textContent = '—';
+                chain.textContent = '—';
+                checked.textContent = 'Not checked — the sealed record did not answer this page’s request.';
+            }).then(renderOverall);
+        }
+
+        function checkFamilies() {
+            var value = $('families-value'), checked = $('families-checked');
+            value.textContent = 'Checking';
+            return fetchJson('/family/build_summary', 110000).then(function (d) {
+                results.families = 'ok';
+                var fams = d.families || d.family_statuses || d.entries || null;
+                var total = null, live = null;
+                if (fams && typeof fams === 'object') {
+                    var keys = Array.isArray(fams) ? fams.map(function (_, i) { return i; }) : Object.keys(fams);
+                    total = keys.length;
+                    live = 0;
+                    keys.forEach(function (k) {
+                        var f = fams[k] || {};
+                        var s = String(f.status || f.state || '');
+                        if (s.toUpperCase().indexOf('LIVE') !== -1) live++;
+                    });
+                }
+                if (total !== null) {
+                    value.textContent = total + ' families in the directory, ' + live + ' reporting live';
+                } else {
+                    value.textContent = 'The directory answered';
+                }
+                checked.textContent = 'Checked at ' + fmtClock(new Date()) + ', as reported by the system itself.';
+            }).catch(function () {
+                results.families = 'fail';
+                value.textContent = 'Not checked';
+                checked.textContent = 'Not checked — the directory read did not complete inside this page’s window. The per-family reports are heavy on the free tier; the panels above carry what could be checked.';
+            }).then(renderOverall);
+        }
+
+        function runChecks() {
+            results = { health: null, relay: null, ledger: null, families: null };
+            renderOverall();
+            checkHealth();
+            checkRelay();
+            checkLedger();
+            checkFamilies();
+        }
+
+        $('recheck').addEventListener('click', runChecks);
+        runChecks();
+    })();
+    </script>
+</body>
+</html>
